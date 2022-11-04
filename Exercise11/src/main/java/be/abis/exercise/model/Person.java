@@ -1,23 +1,32 @@
 package be.abis.exercise.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+
+import javax.validation.constraints.Size;
+import java.time.LocalDate;
+
+@JacksonXmlRootElement(localName = "person")
 public class Person {
 	
 	private int personId;
 	private String firstName;
 	private String lastName;
-	private int age;
+	@JsonFormat(pattern = "dd/MM/yyyy")
+	private LocalDate birthDate;
 	private String emailAddress;
+	@Size(min = 6, message = "Password must be at least 6 characters long.")
 	private String password;
 	private String language;
 	private Company company;
 
 	public Person(){}
 
-	public Person(int personId, String firstName, String lastName, int age, String emailAddress, String password, String language, Company company) {
+	public Person(int personId, String firstName, String lastName, LocalDate birthdate, String emailAddress, String password, String language, Company company) {
 		this.personId = personId;
 		this.firstName = firstName;
 		this.lastName = lastName;
-		this.age = age;
+		this.birthDate = birthdate;
 		this.emailAddress = emailAddress;
 		this.password = password;
 		this.language = language;
@@ -42,11 +51,11 @@ public class Person {
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
-	public int getAge() {
-		return age;
+	public LocalDate getBirthDate() {
+		return birthDate;
 	}
-	public void setAge(int age) {
-		this.age = age;
+	public void setBirthDate(LocalDate birthDate) {
+		this.birthDate = birthDate;
 	}
 
 	public String getEmailAddress() {

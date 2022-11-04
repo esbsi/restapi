@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Exercise11/Exercise11.iml" filepath="$PROJECT_DIR$/Exercise11/Exercise11.iml" />
+      <module fileurl="file://$PROJECT_DIR$/exchangerateAPIclient/exchangerateAPIclient.iml" filepath="$PROJECT_DIR$/exchangerateAPIclient/exchangerateAPIclient.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/restapi.iml" filepath="$PROJECT_DIR$/.idea/restapi.iml" />
+      <module fileurl="file://$PROJECT_DIR$/restclient/restclient.iml" filepath="$PROJECT_DIR$/restclient/restclient.iml" />
+    </modules>
+  </component>
+</project>

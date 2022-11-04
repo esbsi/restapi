@@ -1,5 +1,7 @@
 package be.abis.exercise.repository;
 
+import be.abis.exercise.exception.PersonAlreadyExistsException;
+import be.abis.exercise.exception.PersonNotFoundException;
 import be.abis.exercise.model.Address;
 import be.abis.exercise.model.Company;
 import be.abis.exercise.model.Person;
@@ -7,14 +9,19 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 public class PersonFileRepository implements PersonRepository {
 
 	private ArrayList<Person> allPersons= new ArrayList<Person>();;
 	private String fileLoc = "/temp/javacourses/personsAPI.csv";
+	private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
 	@PostConstruct
 	public void init(){
@@ -53,7 +60,7 @@ public class PersonFileRepository implements PersonRepository {
 					p.setPersonId(!vals[0].equals("null") ? Integer.parseInt(vals[0]) : 0);
 					p.setFirstName(!vals[1].equals("null") ? vals[1] : null);
 					p.setLastName(!vals[2].equals("null") ? vals[2] : null);
-					p.setAge(Integer.parseInt(!vals[3].equals("null") ? vals[3] : "0"));
+					p.setBirthDate(LocalDate.parse((!vals[3].equals("null") ? vals[3] : "0"), dateTimeFormatter));
 					p.setEmailAddress(!vals[4].equals("null") ? vals[4] : null);
 					p.setPassword(!vals[5].equals("null") ? vals[5] : null);
 					p.setLanguage(!vals[6].equals("null") ? vals[6] : null);
@@ -77,32 +84,30 @@ public class PersonFileRepository implements PersonRepository {
 	}
 
 	@Override
-	public Person findPerson(String emailAddress, String passWord) {
+	public Person findPerson(String emailAddress, String passWord) throws PersonNotFoundException {
 		if (emailAddress == null || passWord == null) {
 			return null;
 		}
-
 		this.readFile();
 		// System.out.println("persons in PersonList" + allPersons);
 		Iterator<Person> iter = allPersons.iterator();
-
 		while (iter.hasNext()) {
 			Person pers = iter.next();
 			if (pers.getEmailAddress().equalsIgnoreCase(emailAddress) && pers.getPassword().equals(passWord)) {
 				return pers;
 			}
 		}
-		return null;
+		throw new PersonNotFoundException();
 	}
 	
 	@Override
-	public Person findPerson(int id) {
+	public Person findPerson(int id) throws PersonNotFoundException {
 		this.readFile();
-		return allPersons.stream().filter(p->p.getPersonId()==id).findFirst().orElse(null);
+		return allPersons.stream().filter(p->p.getPersonId()==id).findFirst().orElseThrow(PersonNotFoundException::new);
 	}
 
 	@Override
-	public void addPerson(Person p) throws IOException {
+	public void addPerson(Person p) throws IOException, PersonAlreadyExistsException {
 		boolean b = false;
 		this.readFile();
 		Iterator<Person> iter = allPersons.iterator();
@@ -110,7 +115,7 @@ public class PersonFileRepository implements PersonRepository {
 		while (iter.hasNext()) {
 			Person pers = iter.next();
 			if (pers.getEmailAddress().equalsIgnoreCase(p.getEmailAddress())) {
-				throw new IOException("you were already registered, login please");
+				throw new PersonAlreadyExistsException("you were already registered, login please");
 			} else {
 				b = true;
 			}
@@ -161,7 +166,7 @@ public class PersonFileRepository implements PersonRepository {
 		StringBuilder sb = new StringBuilder();
 		int nr = p.getCompany().getAddress().getNr();
 		sb.append(p.getPersonId() + ";").append(p.getFirstName() + ";").append(p.getLastName() + ";")
-				.append((p.getAge() != 0 ? p.getAge() : null) + ";").append(p.getEmailAddress() + ";")
+				.append((p.getBirthDate() != null ? p.getBirthDate().format(dateTimeFormatter) : null) + ";").append(p.getEmailAddress() + ";")
 				.append(p.getPassword() + ";").append(p.getLanguage().toLowerCase() + ";")
 				.append(p.getCompany().getName() + ";").append(p.getCompany().getTelephoneNumber() + ";")
 				.append(p.getCompany().getVatNr() + ";").append(p.getCompany().getAddress().getStreet() + ";")
@@ -181,6 +186,13 @@ public class PersonFileRepository implements PersonRepository {
 		}
 
 		pw.close();
+	}
+
+	@Override
+	public List<Person> findPersonsByCompanyName(String companyName){
+		return allPersons.stream()
+				.filter(person -> companyName.equalsIgnoreCase(person.getCompany().getName()))
+				.collect(Collectors.toList());
 	}
 
 }

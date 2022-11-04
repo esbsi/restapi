@@ -1,0 +1,7 @@
+/persons getAllPersons()
+/persons/{id}
+/persons/query?mail=x&pwd=x
+POST /persons/postlogin login
+POST /persons person
+DELETE /persons/{id}
+PUT /persons/{id}?newPswd=x
